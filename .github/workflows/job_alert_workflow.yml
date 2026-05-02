@@ -1,0 +1,33 @@
+name: DKB Job Alert
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour — adjust as needed
+  workflow_dispatch:       # lets you trigger it manually from GitHub UI
+
+jobs:
+  check-jobs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      # Restore cached job state between runs
+      - name: Restore known_jobs cache
+        uses: actions/cache@v4
+        with:
+          path: known_jobs.json
+          key: known-jobs-${{ github.run_id }}
+          restore-keys: known-jobs-
+
+      - name: Run job alert script
+        
